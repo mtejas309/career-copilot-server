@@ -1,0 +1,102 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  name         String
+  email        String    @unique
+  passwordHash String    @map("password_hash")
+  role         String    @default("user")
+  createdAt    DateTime  @default(now()) @map("created_at")
+
+  profile      Profile?
+  resumes      Resume[]
+  roadmaps     Roadmap[]
+  chatMessages ChatMessage[]
+
+  @@map("users")
+}
+
+model Profile {
+  id              Int      @id @default(autoincrement())
+  userId          Int      @unique @map("user_id")
+  education       String?
+  skills          String[]
+  interests       String[]
+  careerGoal      String?  @map("career_goal")
+  salaryGoal      Int?     @map("salary_goal")
+  dailyStudyHours Float?   @map("daily_study_hours")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Resume {
+  id           Int      @id @default(autoincrement())
+  userId       Int      @map("user_id")
+  fileUrl      String?  @map("file_url")
+  rawText      String?  @map("raw_text")
+  analysisJson Json?    @map("analysis_json")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("resumes")
+}
+
+model Roadmap {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  title       String
+  goal        String
+  duration    Int
+  generatedAt DateTime @default(now()) @map("generated_at")
+
+  user  User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  weeks RoadmapWeek[]
+
+  @@map("roadmaps")
+}
+
+model RoadmapWeek {
+  id         Int      @id @default(autoincrement())
+  roadmapId  Int      @map("roadmap_id")
+  weekNumber Int      @map("week_number")
+  theme      String
+  resources  String[]
+
+  roadmap Roadmap       @relation(fields: [roadmapId], references: [id], onDelete: Cascade)
+  goals   RoadmapGoal[]
+
+  @@map("roadmap_weeks")
+}
+
+model RoadmapGoal {
+  id          Int       @id @default(autoincrement())
+  weekId      Int       @map("week_id")
+  title       String
+  completed   Boolean   @default(false)
+  completedAt DateTime? @map("completed_at")
+
+  week RoadmapWeek @relation(fields: [weekId], references: [id], onDelete: Cascade)
+
+  @@map("roadmap_goals")
+}
+
+model ChatMessage {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  role      String
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("chat_messages")
+}
