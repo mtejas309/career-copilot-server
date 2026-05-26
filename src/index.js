@@ -8,6 +8,7 @@ const resumeRoutes = require('./routes/resume');
 const roadmapRoutes = require('./routes/roadmap');
 const chatRoutes = require('./routes/chat');
 const adminRoutes = require('./routes/admin');
+const agentRoutes = require('./routes/agents');
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use('/api', resumeRoutes);
 app.use('/api', roadmapRoutes);
 app.use('/api', chatRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/agents', agentRoutes);
 
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
