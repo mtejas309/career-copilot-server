@@ -26,9 +26,9 @@ router.post('/chat/message', requireAuth, async (req, res) => {
     take: HISTORY_WINDOW,
   });
 
-  let reply;
+  let reply, provider;
   try {
-    reply = await chatReply(req.userId, history.reverse());
+    ({ reply, provider } = await chatReply(req.userId, history.reverse()));
   } catch (err) {
     console.error('AI chat failed:', err.message);
     return res.status(503).json({ error: 'AI is currently unavailable. Please try again later.' });
@@ -38,7 +38,7 @@ router.post('/chat/message', requireAuth, async (req, res) => {
     data: { userId: req.userId, role: 'assistant', content: reply },
   });
 
-  res.json(assistantMessage);
+  res.json({ ...assistantMessage, provider });
 });
 
 router.delete('/chat/history', requireAuth, async (req, res) => {
